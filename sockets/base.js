@@ -22,7 +22,7 @@ function base (io, ball, paddleOne, paddleTwo) {
       console.log('recieved message from', 
                   from, 'msg', JSON.stringify(msg));
       console.log('broadcasting', msg);
-      io.sockets.emit('broadcast', {
+      io.sockets.volatile.emit('broadcast', {
         payload: msg,
         source: from
       });
@@ -47,7 +47,7 @@ function base (io, ball, paddleOne, paddleTwo) {
       }
 
     //this broadcast not neccessary  
-    io.sockets.emit('broadcast' , {
+    io.sockets.volatile.emit('broadcast' , {
         payload: msg,
         source: from
       });    
@@ -102,7 +102,7 @@ function base (io, ball, paddleOne, paddleTwo) {
         if(parent.p2movedown) { paddleTwo.movedown(paddleSpeed)}
 
         //broadcast data model to clients
-        io.sockets.emit('broadcast', {
+        io.sockets.volatile.emit('broadcast', {
             payload: { x: ball.x, y:ball.y, pos1y:paddleOne.posy, pos2y:paddleTwo.posy, p1score:paddleOne.score, p2score:paddleTwo.score },
             source: "ball"
           });
