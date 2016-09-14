@@ -16,9 +16,13 @@ var ball = require('./game/ball')(paddleOne,paddleTwo);
 var base = require('./sockets/base')(io, ball,paddleOne,paddleTwo);
 
 
+app.set('port', process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 3000);
+app.set('ip', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
 app.use(express.static('public'));
 app.use('/scripts', express.static(__dirname + '/node_modules/'));
 
-server.listen(3000, function() {
-	console.log(ball);
+
+server.listen(app.get('port'),app.get('ip'), function() {
+	console.log('Server instantiated at ' + Date.now());
+    console.log('Listening @' + app.get('ip') + ' on port '+ app.get('port'));
 });

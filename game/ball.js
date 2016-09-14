@@ -1,8 +1,7 @@
 module.exports = function (paddleOne, paddleTwo) {
 
 var buffer = 30;
-console.log(paddleOne)
-console.log(paddleTwo)
+
 function BallObject () {
 	var ball = this;
 	ball.width = 800;
