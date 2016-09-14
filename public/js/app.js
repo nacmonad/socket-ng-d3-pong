@@ -12,11 +12,10 @@
 
 var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','btford.socket-io']);
 	app
-		.value('nickName','anonymous')
 		.controller('SocketCtrl', 
 		  function ($log, $scope, chatSocket, 
-		            messageFormatter, nickName) {
-		  $scope.nickName = nickName;
+		            messageFormatter, nickNameService) {
+		  $scope.nickName = nickNameService.nickName;
 		  $scope.messageLog = 'Ready to chat!';
 
 		  $scope.sendMessage = function() {
@@ -24,18 +23,18 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 
 			  if (angular.isDefined(match) && 
 			    angular.isArray(match) && match.length === 2) {
-			    var oldNick = nickName;
-			    nickName = match[1];
+			    var oldNick = nickNameService.nickName;
+			    nickNameService.nickName=match[1];
 			    $scope.message = '';
 			    $scope.messageLog = messageFormatter(new Date(), 
-			                    nickName, 'nickname changed - from ' + 
-			                    oldNick + ' to ' + nickName + '!') + 
+			                    nickNameService.nickName, 'nickname changed - from ' + 
+			                    oldNick + ' to ' + nickNameService.nickName + '!') + 
 			                    $scope.messageLog;
-			    $scope.nickName = nickName;
+			    $scope.nickName = nickNameService.nickName;
 			  }
 
 			  //$log.debug('sending message', $scope.message);
-			  chatSocket.emit('message', nickName, $scope.message);
+			  chatSocket.emit('message', nickNameService.nickName, $scope.message);
 			  //$log.debug('message sent', $scope.message);
 			  $scope.message = '';
 			};
@@ -66,7 +65,7 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 			return {
 				restrict:'A',
 				scope: false,
-				controller: ['$scope','$element','$timeout','$interval','$log','chatSocket',function($scope,$element,$timeout,$interval,$log,chatSocket,nickName) {
+				controller: ['$scope','$element','$timeout','$interval','$log','chatSocket','nickNameService' ,function($scope,$element,$timeout,$interval,$log,chatSocket,nickNameService) {
 
 					$scope.gameLoop;
 					$scope.playing = false;
@@ -76,6 +75,7 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 					$scope.p1down = false;
 					$scope.p2up = false;
 					$scope.p2down = false;
+
 
 					//PONG CLASS PROTOTYPES  how to load in seperate file?
 					
@@ -94,16 +94,17 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 
 					//CONTROL OF GAME LOOP
 					$scope.start = function () {
-						chatSocket.emit('start', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " START");
+						//shall i implement nickname service?
+						chatSocket.emit('start', nickNameService.nickName, " START");
 					}
 					$scope.stop = function () {
-						chatSocket.emit('stop', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " STOP");
+						chatSocket.emit('stop', nickNameService.nickName, " STOP");
 					}
 					$scope.toggle = function () {
 						$scope.playing ? ($scope.stop(),$scope.playing=false):($scope.start(),$scope.playing=true);
 					}
 					$scope.reset = function () {
-						chatSocket.emit('reset', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " RESET");		
+						chatSocket.emit('reset', nickNameService.nickName, " RESET");		
 					}
 
 
@@ -111,11 +112,11 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 					$scope.keyDown = function (e) {
 						if(e.keyCode==87 && $scope.p1up != true) {
 							$scope.p1up = true;
-							chatSocket.emit('move', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " UP");
+							chatSocket.emit('move', nickNameService.nickName, " UP");
 						}
 						if(e.keyCode==83 && $scope.p1down != true) {
 							$scope.p1down = true;
-							chatSocket.emit('move', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " DOWN");
+							chatSocket.emit('move', nickNameService.nickName, " DOWN");
 						}
 	
 					}
@@ -123,11 +124,11 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 
 						if(e.keyCode==87 && $scope.p1up==true) {
 							$scope.p1up = false;
-							chatSocket.emit('move', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " up");
+							chatSocket.emit('move', nickNameService.nickName, " up");
 						}
 						if(e.keyCode==83 && $scope.p1down==true) {
 							$scope.p1down = false;
-							chatSocket.emit('move', angular.element('[ng-controller="SocketCtrl"]').scope().nickName, " down");
+							chatSocket.emit('move', nickNameService.nickName, " down");
 						}
 
 					}

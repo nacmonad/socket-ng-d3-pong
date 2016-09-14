@@ -22,7 +22,7 @@ function base (io, ball, paddleOne, paddleTwo) {
       console.log('recieved message from', 
                   from, 'msg', JSON.stringify(msg));
       console.log('broadcasting', msg);
-      io.sockets.volatile.emit('broadcast', {
+      io.sockets.emit('broadcast', {
         payload: msg,
         source: from
       });
@@ -45,12 +45,6 @@ function base (io, ball, paddleOne, paddleTwo) {
         if (msg == " DOWN") { parent.p2movedown=true;}
         if (msg == " down") { parent.p2movedown=false;}
       }
-
-    //this broadcast not neccessary  
-    io.sockets.volatile.emit('broadcast' , {
-        payload: msg,
-        source: from
-      });    
     });
 
     socket.on('start', function(from,msg) {
