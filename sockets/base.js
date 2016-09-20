@@ -4,6 +4,7 @@ function base (io, ball, paddleOne, paddleTwo) {
   'use strict';
   //connections
   var users = [];
+  var userlist = {};
   var paddleSpeed =5;
   var parent = this;
   parent.p1moveup = false;
@@ -13,20 +14,35 @@ function base (io, ball, paddleOne, paddleTwo) {
 
   io.on('connection', function (socket) {
     console.log("User " + socket.id + " connected.");
-    users.push(socket.id);
-    console.log("Active user ids: ");
-    console.log(users);
-
+    users.push({id:socket.id.substring(2), nickname:"anonymous"});
+   
+    //broadcast userlist
+    io.sockets.emit('broadcast', {
+        payload: users,
+        source: "userlist"
+      });
 
     socket.on('message', function (from, msg) {
-      console.log('recieved message from', 
-                  from, 'msg', JSON.stringify(msg));
-      console.log('broadcasting', msg);
+      console.log('id: ', socket.id,'nick:', 
+                  from, 'msg:', JSON.stringify(msg));
+      users.forEach(function(e,i) {
+        if(e.id == socket.id.substring(2)) { users[i].nickname=from}
+      });
       io.sockets.emit('broadcast', {
         payload: msg,
         source: from
       });
+
+       //broadcast userlist
+      io.sockets.emit('broadcast', {
+          payload: users,
+          source: "userlist"
+        });
     });
+
+
+
+
 
 
      socket.on('move', function (from, msg) {
@@ -70,9 +86,16 @@ function base (io, ball, paddleOne, paddleTwo) {
 
     socket.on('disconnect', function() {
       console.log("User " + socket.id + " disconnected.");
-      users.splice(users.indexOf(socket.id),1);
+      users.forEach(function(e,i) {
+        if(e.id == socket.id.substring(2)) { users.splice(i,1)}
+      });
       console.log("Active users: ");
       console.log(users);
+      //broadcast userlist
+      io.sockets.emit('broadcast', {
+          payload: users,
+          source: "userlist"
+        });
     })
 
   });
@@ -103,6 +126,9 @@ function base (io, ball, paddleOne, paddleTwo) {
       } , 20);
     }
 
+  this.getUsers = function() {
+    return users;
+  }
 };
 
 return new base(io,ball,paddleOne,paddleTwo);

@@ -31,8 +31,8 @@
 				<p class="text-center">Use either <b><em>w</em></b> or <b><em>s</em></b> to move up or down! </p>
 			</div>
 	</div>
-	<div class='container chat'>
-	  <div ng-controller='SocketCtrl'>
+	<div class='container chat' ng-controller='SocketCtrl'>
+	  <div class = "col-md-8" >
 	    You are known as: <span ng-bind="nickName"></span>.
 	    <br/>
 	    Change your nickname with <code>/nick [yourNewNick]</code>
@@ -61,6 +61,11 @@
 	        </form>
 	      </div>
 	    </div>
+	  </div>
+	  <div class="col-md-4">
+	  	<ul>
+	  		<li ng-repeat="user in userlist"> <b>ID:</b>{{user.id}} <b>Nickname:</b> {{user.nickname}}</li>
+	  	</ul>
 	  </div>
 	</div>
 

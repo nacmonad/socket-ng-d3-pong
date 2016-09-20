@@ -13,7 +13,7 @@
 var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','btford.socket-io']);
 	app
 		.controller('SocketCtrl', 
-		  function ($log, $scope, chatSocket, 
+		  function ($log, $http, $scope, chatSocket, 
 		            messageFormatter, nickNameService) {
 		  $scope.nickName = nickNameService.nickName;
 		  $scope.messageLog = 'Ready to chat!';
@@ -37,6 +37,7 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 			  chatSocket.emit('message', nickNameService.nickName, $scope.message);
 			  //$log.debug('message sent', $scope.message);
 			  $scope.message = '';
+			  //$scope.getUsers();
 			};
 
 
@@ -49,15 +50,30 @@ var app = angular.module('angularPong', ['ngCookies','ngResource','ngSanitize','
 		                 'data', JSON.stringify(data));
 		      return;
 		    }
-		    if (data.source != "ball") {
+		    //if payload is userlist, update userlist
+		    if (data.source == "userlist") {
+		    	$scope.userlist = data.payload;
+		    }
+
+		    //chatlog output
+		    if (data.source != "ball" && data.source !="userlist") {
 		    $scope.$apply(function() {
 			      $scope.messageLog = messageFormatter(
 			            new Date(), data.source, 
 			            data.payload) + $scope.messageLog;
 			    });
 		    }
+		    
 		  });
 
+		  $scope.getUsers = function () {
+		  	$http.get("http://localhost:3000/users").then( function (data) {
+		  		$scope.userlist = data.data;
+		  	}, function (err) { 
+		  		console.log(err);
+		  	});
+		  }
+		  //$scope.userlist = $scope.getUsers();
 		  // end of controller
 		})
 
